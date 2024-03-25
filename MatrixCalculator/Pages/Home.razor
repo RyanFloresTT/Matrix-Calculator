@@ -1,0 +1,124 @@
+﻿@using MatrixCalculator.Matrix
+@using MatrixCalculator.Stuff
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h3>Matrix 1</h3>
+<label>Rows: </label>
+<input type="number" @bind="rows1" />
+<label>Columns: </label>
+<input type="number" @bind="columns1" />
+<button @onclick="InitializeMatrix1">Set Matrix 1 Size</button>
+
+<form>
+    @for (int i = 0; i < rows1; i++) {
+        <div>
+            @for (int j = 0; j < columns1; j++) {
+                <input type="number" @bind="matrix1Values[i, j]" style="width: 50px;" />
+                if (j < columns1 - 1) {
+                    @:&nbsp;
+                }
+            }
+        </div>
+    }
+</form>
+
+<h3>Matrix 2</h3>
+<label>Rows: </label>
+<input type="number" @bind="rows2" />
+<label>Columns: </label>
+<input type="number" @bind="columns2" />
+<button @onclick="InitializeMatrix2">Set Matrix 2 Size</button>
+
+<form>
+    @for (int i = 0; i < rows2; i++) {
+        <div>
+            @for (int j = 0; j < columns2; j++) {
+                <input type="number" @bind="matrix2Values[i, j]" style="width: 50px;" />
+                if (j < columns2 - 1) {
+                    @:&nbsp;
+                }
+            }
+        </div>
+    }
+</form>
+
+<h3>Operation</h3>
+<label for="operation">Choose an operation:</label>
+<select @bind="selectedOperation" id="operation">
+    @foreach (var operation in Enum.GetValues(typeof(MatrixOperation))) {
+        <option value="@operation">@operation</option>
+    }
+</select>
+
+<button @onclick="PerformOperation">Perform Operation</button>
+
+<h3>Result</h3>
+@if (selectedOperation != MatrixOperation.DotProduct) {
+    @if (matrixResultValues != null) {
+        <table>
+            @for (int i = 0; i < matrixResultValues.Rows; i++) {
+                <tr>
+                    @for (int j = 0; j < matrixResultValues.Columns; j++) {
+                        <td>@matrixResultValues[i, j]</td>
+                    }
+                </tr>
+            }
+        </table>
+    }
+} else {
+    <div>Dot Product Result: @value</div>
+}
+
+@code {
+    private Matrix matrix1Values = new Matrix(3, 3);
+    private Matrix matrix2Values = new Matrix(3, 3);
+    private Matrix matrixResultValues;
+    private double value;
+    private int rows1 = 3, columns1 = 3;
+    private int rows2 = 3, columns2 = 3;
+    private MatrixOperation selectedOperation = MatrixOperation.Add;
+
+    void InitializeMatrix1() {
+        matrix1Values = new Matrix(rows1, columns1);
+        for (int i = 0; i < rows1; i++) {
+            for (int j = 0; j < columns1; j++) {
+                matrix1Values[i, j] = 0;
+            }
+        }
+    }
+
+    void InitializeMatrix2() {
+        matrix2Values = new Matrix(rows2, columns2);
+        for (int i = 0; i < rows2; i++) {
+            for (int j = 0; j < columns2; j++) {
+                matrix2Values[i, j] = 0;
+            }
+        }
+    }
+
+    void PerformOperation() {
+        switch (selectedOperation) {
+            case MatrixOperation.Add:
+                matrixResultValues = matrix1Values + matrix1Values;
+                break;
+            case MatrixOperation.Subtract:
+                matrixResultValues = matrix1Values - matrix1Values;
+                break;
+            case MatrixOperation.Multiply:
+                matrixResultValues = matrix1Values * matrix1Values;
+                break;
+            case MatrixOperation.CrossProduct:
+                matrixResultValues = matrix1Values.CrossProduct(matrix1Values);
+                break;
+            case MatrixOperation.DotProduct:
+                value = matrix1Values.DotProduct(matrix1Values); 
+                break;
+            case MatrixOperation.ScalarTriple:
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+}
